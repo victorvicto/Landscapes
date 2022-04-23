@@ -4,12 +4,13 @@ using UnityEngine;
 
 public class MyTerrainGenerator : MonoBehaviour
 {
+    // One pixel per vertex
     public Texture2D heightMap;
-    public float pixelsPerMeter = 1;
+    public float metersBetweenVerts = 1;
 
     public void GenerateTerrain()
     {
         MyTerrainMeshesGenerator meshGen = FindObjectOfType<MyTerrainMeshesGenerator>();
-        meshGen.GenerateTerrainMeshes(heightMap, pixelsPerMeter);
+        meshGen.GenerateTerrainMeshes(heightMap, metersBetweenVerts);
     }
 }
