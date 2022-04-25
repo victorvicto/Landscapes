@@ -12,6 +12,9 @@ public class TerrainChunk
     public int chunkXIndex;
     public int chunkZIndex;
 
+    public int startXPixel;
+    public int startZPixel;
+
     // coordinates of bottom left corner
     public float startXPos;
     public float startZPos;
@@ -32,15 +35,15 @@ public class TerrainChunk
         float terrainHeight = heightMap.height * metersBetweenVerts;
         Debug.Log(terrainWidth);
         size = (chunkRes - 1) * metersBetweenVerts;
-        int startXPixel = chunkXIndex * (chunkRes - 1);
-        int startZPixel = chunkZIndex * (chunkRes - 1);
+        startXPixel = chunkXIndex * (chunkRes - 1);
+        startZPixel = chunkZIndex * (chunkRes - 1);
         startXPos = startXPixel * metersBetweenVerts - (terrainWidth / 2);
-        startZPos = startZPixel * metersBetweenVerts - (terrainHeight / 2);
+        startZPos = (terrainHeight / 2) - (startZPixel * metersBetweenVerts); // Doing this so that the map is drawn from TOP left to bottom right
 
-        GenerateMeshes(chunkRes, metersBetweenVerts);
+        GenerateMeshes(chunkRes, metersBetweenVerts, heightMap);
     }
 
-    void GenerateMeshes(int chunkRes, float metersBetweenVerts)
+    void GenerateMeshes(int chunkRes, float metersBetweenVerts, Texture2D heightMap)
     {
         int numLODs = meshes.Length;
         // Looping over the level of details to have multiple versions of each chunk, one per LOD
@@ -58,7 +61,8 @@ public class TerrainChunk
             {
                 for (int x = 0; x < chunkRes; x += LOD)
                 {
-                    meshData.vertices[vertexIndex] = new Vector3(currentXPos, 0, currentZPos);
+                    float height = heightMap.GetPixel(startXPixel + x, startZPixel + z).r * 20;
+                    meshData.vertices[vertexIndex] = new Vector3(currentXPos, height, currentZPos);
                     meshData.uvs[vertexIndex] = new Vector2(x / (float)(chunkRes - 1), z / (float)(chunkRes - 1));
 
                     if (x < chunkRes - 1 && z < chunkRes - 1)
@@ -71,7 +75,7 @@ public class TerrainChunk
                     currentXPos += metersBetweenVerts;
                 }
                 currentXPos = startXPos;
-                currentZPos += metersBetweenVerts;
+                currentZPos -= metersBetweenVerts; // Again, we use minus because we start from TOP left to bottom right
             }
 
             GameObject meshObject = new GameObject("Terrain Chunk " + chunkXIndex + "-" + chunkZIndex + " LOD" + LOD);
