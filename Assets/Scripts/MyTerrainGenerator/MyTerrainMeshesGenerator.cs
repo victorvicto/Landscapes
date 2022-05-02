@@ -7,7 +7,7 @@ public class MyTerrainMeshesGenerator : MonoBehaviour
     public int chunkRes = 121;
     [Range(1, 6)]
     public int numLODs = 1;
-    public void GenerateTerrainMeshes(Texture2D heightMap, float metersBetweenVerts)
+    public void GenerateTerrainMeshes(Texture2D heightMap, float metersBetweenVerts, Material terrainMaterial)
     {
         if ((heightMap.width - 1) % 120 != 0 || (heightMap.height - 1) % 120 != 0)
         {
@@ -21,7 +21,7 @@ public class MyTerrainMeshesGenerator : MonoBehaviour
         {
             for (int chunkZIndex = 0; chunkZIndex < numZChunks; chunkZIndex++)
             {
-                TerrainChunk testChunk = new TerrainChunk(numLODs, chunkXIndex, chunkZIndex, chunkRes, heightMap, metersBetweenVerts, this.transform);
+                TerrainChunk testChunk = new TerrainChunk(numLODs, chunkXIndex, chunkZIndex, chunkRes, heightMap, metersBetweenVerts, this.transform, terrainMaterial);
             }
         }
     }

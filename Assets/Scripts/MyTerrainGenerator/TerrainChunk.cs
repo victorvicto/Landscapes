@@ -21,7 +21,7 @@ public class TerrainChunk
     public float size;
 
 
-    public TerrainChunk(int numLODs, int _chunkXIndex, int _chunkZIndex, int chunkRes, Texture2D heightMap, float metersBetweenVerts, Transform _parent)
+    public TerrainChunk(int numLODs, int _chunkXIndex, int _chunkZIndex, int chunkRes, Texture2D heightMap, float metersBetweenVerts, Transform _parent, Material terrainMaterial)
     {
         meshes = new GameObject[numLODs];
 
@@ -40,10 +40,10 @@ public class TerrainChunk
         startXPos = startXPixel * metersBetweenVerts - (terrainWidth / 2);
         startZPos = (terrainHeight / 2) - (startZPixel * metersBetweenVerts); // Doing this so that the map is drawn from TOP left to bottom right
 
-        GenerateMeshes(chunkRes, metersBetweenVerts, heightMap);
+        GenerateMeshes(chunkRes, metersBetweenVerts, heightMap, terrainMaterial);
     }
 
-    void GenerateMeshes(int chunkRes, float metersBetweenVerts, Texture2D heightMap)
+    void GenerateMeshes(int chunkRes, float metersBetweenVerts, Texture2D heightMap, Material terrainMaterial)
     {
         int numLODs = meshes.Length;
         // Looping over the level of details to have multiple versions of each chunk, one per LOD
@@ -61,9 +61,11 @@ public class TerrainChunk
             {
                 for (int x = 0; x < chunkRes; x += LOD)
                 {
-                    float height = heightMap.GetPixel(startXPixel + x, startZPixel + z).r * 20;
+                    int currentXPixel = startXPixel + x;
+                    int currentZPixel = startZPixel + z;
+                    float height = heightMap.GetPixel(currentXPixel, currentZPixel).r * 20;
                     meshData.vertices[vertexIndex] = new Vector3(currentXPos, height, currentZPos);
-                    meshData.uvs[vertexIndex] = new Vector2(x / (float)(chunkRes - 1), z / (float)(chunkRes - 1));
+                    meshData.uvs[vertexIndex] = new Vector2(currentXPixel / (float)(heightMap.width), currentZPixel / (float)(heightMap.height));
 
                     if (x < chunkRes - 1 && z < chunkRes - 1)
                     {
@@ -82,6 +84,7 @@ public class TerrainChunk
             meshObject.transform.parent = parent;
             MeshRenderer meshRenderer = meshObject.AddComponent<MeshRenderer>();
             MeshFilter meshFilter = meshObject.AddComponent<MeshFilter>();
+            meshRenderer.material = terrainMaterial;
             meshFilter.mesh = meshData.CreateMesh();
             meshes[LOD - 1] = meshObject;
 
